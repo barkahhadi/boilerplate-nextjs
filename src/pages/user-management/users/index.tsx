@@ -1,7 +1,7 @@
 import { ProCard } from "@ant-design/pro-components";
 import React, { useState } from "react";
 
-const App: React.FC = () => {
+const UserPage: React.FC = () => {
   return (
     <>
       <ProCard
@@ -10,10 +10,10 @@ const App: React.FC = () => {
           minHeight: 800,
         }}
       >
-        Hello World
+        User
       </ProCard>
     </>
   );
 };
 
-export default App;
+export default UserPage;
