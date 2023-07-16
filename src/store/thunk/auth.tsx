@@ -74,17 +74,26 @@ export const refreshToken = () => {
 
 export const me = () => {
   return async (dispatch: AppDispatch) => {
-    dispatch(authActions.setLoading(true));
-    axios.defaults.headers.common[
-      "Authorization"
-    ] = `Bearer ${AuthCookie.token}`;
-    const { data, status } = await axios.get(
-      process.env.NEXT_PUBLIC_API_URL + "/me"
-    );
-    dispatch(authActions.setLoading(false));
+    try {
+      dispatch(authActions.setLoading(true));
+      axios.defaults.headers.common[
+        "Authorization"
+      ] = `Bearer ${AuthCookie.token}`;
+      const { data, status } = await axios.get(
+        process.env.NEXT_PUBLIC_API_URL + "/me"
+      );
+      dispatch(authActions.setLoading(false));
 
-    if (status === 200) {
-      dispatch(authActions.setCredential(data));
+      if (status === 200) {
+        dispatch(authActions.setCredential(data));
+      }
+    } catch (err: unknown) {
+      if (err instanceof AxiosError) {
+        if (err.response?.status == 401) {
+          AuthCookie.remove();
+          dispatch(authActions.removeCredential(null));
+        }
+      }
     }
   };
 };

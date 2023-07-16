@@ -1,15 +1,11 @@
 import { LogoutOutlined } from "@ant-design/icons";
-import {
-  PageContainer,
-  ProConfigProvider,
-  createIntl,
-} from "@ant-design/pro-components";
+import { ProConfigProvider } from "@ant-design/pro-components";
 import dynamic from "next/dynamic";
 const ProLayout = dynamic(() => import("@ant-design/pro-layout"), {
   ssr: false,
 });
-import { Avatar, ConfigProvider, Dropdown, Space, Image } from "antd";
-import React, { ReactElement, useState } from "react";
+import { ConfigProvider, Dropdown, Space, Image } from "antd";
+import React, { ReactElement } from "react";
 import { NextPage } from "next";
 import layoutSettings from "@/settings/layout/layout";
 import { useAppDispatch, useAppSelector } from "@/store";
@@ -17,10 +13,10 @@ import { logout } from "@store/thunk/auth";
 import { useRouter } from "next/router";
 import enUS from "antd/lib/locale/en_US";
 
-const MainLayout: NextPage<{ children: ReactElement }> = (props) => {
-  const { children } = props;
-
-  const [num, setNum] = useState(40);
+const MainLayout: NextPage<{
+  children: ReactElement;
+}> = (props) => {
+  let { children } = props;
 
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -75,7 +71,7 @@ const MainLayout: NextPage<{ children: ReactElement }> = (props) => {
                 );
               },
             }}
-            headerTitleRender={(logo, title) => {
+            headerTitleRender={() => {
               return (
                 <div
                   style={{
@@ -122,17 +118,7 @@ const MainLayout: NextPage<{ children: ReactElement }> = (props) => {
             )}
             {...layoutSettings}
           >
-            <PageContainer
-              token={{
-                paddingInlinePageContainerContent: num,
-              }}
-              extra={[]}
-              title="Page Title"
-              subTitle="Page Subtitle"
-              style={{ paddingTop: 0 }}
-            >
-              {children}
-            </PageContainer>
+            {children}
           </ProLayout>
         </ConfigProvider>
       </ProConfigProvider>

@@ -18,7 +18,6 @@ class AuthCookie extends CookieManager {
   }
 
   get isAuthenticated() {
-    // console.log(this.value.token);
     return !!this.value && !!this.value.token;
   }
 }

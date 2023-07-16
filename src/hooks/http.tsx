@@ -6,7 +6,7 @@
  * Description: Custom hook for handling http requests.
  */
 
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { useState, useCallback } from "react";
 import { HttpRequestConfig } from "@/types/http";
 import AuthCookie from "@utils/cookies/auth";
@@ -24,22 +24,27 @@ const useHttp = () => {
     ] = `Bearer ${AuthCookie.token}`;
   }
 
-  const mutate = useCallback(
-    async (config: HttpRequestConfig, onSuccess?: Function) => {
+  const request = useCallback(
+    async (
+      config: HttpRequestConfig,
+      onSuccess?: Function,
+      onError?: Function
+    ) => {
       setIsLoading(true);
       setError(null);
 
-      const url: string =
-        config.baseURL || config.external
-          ? config.baseURL
-          : `${process.env.NEXT_PUBLIC_API_URL}${config.url}`;
+      const url: string = `${process.env.NEXT_PUBLIC_API_URL}${config.url}`;
       try {
-        const response = await axios({
+        const axiosConfig: any = {
           method: config.method,
           url: url,
-          data: config.data,
           headers: config.headers,
-        });
+        };
+        if (config.data) {
+          axiosConfig.data = config.data;
+        }
+
+        const response = await axios(axiosConfig);
         setIsLoading(false);
         if (onSuccess) {
           onSuccess(response);
@@ -47,71 +52,104 @@ const useHttp = () => {
         return response;
       } catch (err: unknown) {
         setIsLoading(false);
-        if (err instanceof Error) {
-          setError(err.message || "Something went wrong!");
+        if (err instanceof AxiosError) {
+          if (err.response && err.response.data.message) {
+            setError(err.response.data.message);
+          }
         }
-        return false;
+        onError && onError(err);
+        throw err;
       }
     },
     []
   );
 
   const post = useCallback(
-    async (config: HttpRequestConfig, onSuccess?: Function) => {
-      config.method = "post";
-      return mutate(config, onSuccess);
+    async (
+      url: string,
+      data: any,
+      onSuccess?: Function,
+      onError?: Function
+    ) => {
+      return request(
+        {
+          url: url,
+          data: data,
+          method: "post",
+        },
+        onSuccess,
+        onError
+      );
     },
-    [mutate]
+    [request]
   );
 
   const put = useCallback(
-    async (config: HttpRequestConfig, onSuccess?: Function) => {
-      config.method = "put";
-      mutate(config, onSuccess);
+    async (
+      url: string,
+      data: any,
+      onSuccess?: Function,
+      onError?: Function
+    ) => {
+      return request(
+        {
+          url: url,
+          data: data,
+          method: "put",
+        },
+        onSuccess,
+        onError
+      );
     },
-    [mutate]
+    [request]
   );
 
   const patch = useCallback(
-    async (config: HttpRequestConfig, onSuccess?: Function) => {
-      config.method = "patch";
-      mutate(config, onSuccess);
+    async (
+      url: string,
+      data: any,
+      onSuccess?: Function,
+      onError?: Function
+    ) => {
+      return request(
+        {
+          url: url,
+          data: data,
+          method: "patch",
+        },
+        onSuccess,
+        onError
+      );
     },
-    [mutate]
+    [request]
   );
 
   const del = useCallback(
-    async (config: HttpRequestConfig, onSuccess?: Function) => {
-      config.method = "delete";
-      mutate(config, onSuccess);
+    async (url: string, onSuccess?: Function, onError?: Function) => {
+      return request(
+        {
+          url: url,
+          method: "delete",
+        },
+        onSuccess,
+        onError
+      );
     },
-    [mutate]
+    [request]
   );
 
   const get = useCallback(
-    async (config: HttpRequestConfig, onSuccess?: Function) => {
-      setIsLoading(true);
-      setError(null);
-      const url: string =
-        config.baseURL || config.external
-          ? config.baseURL
-          : `${process.env.NEXT_PUBLIC_API_URL}${config.url}`;
-      try {
-        const response = await axios.get(url);
-        setIsLoading(false);
-        if (onSuccess) {
-          onSuccess(response);
-        }
-        return response;
-      } catch (err: unknown) {
-        setIsLoading(false);
-        if (err instanceof Error) {
-          setError(err.message || "Something went wrong!");
-        }
-        return false;
-      }
+    async (url: string, onSuccess?: Function, onError?: Function) => {
+      return request(
+        {
+          url: url,
+          method: "get",
+        },
+        onSuccess,
+        onError
+      );
     },
-    []
+    [request]
   );
 
   return {
@@ -122,6 +160,7 @@ const useHttp = () => {
     put,
     patch,
     del,
+    request,
   };
 };
 

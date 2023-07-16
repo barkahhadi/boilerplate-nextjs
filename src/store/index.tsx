@@ -9,12 +9,14 @@
 import { Action, ThunkAction, configureStore } from "@reduxjs/toolkit";
 import { createWrapper } from "next-redux-wrapper";
 import authReducer from "./slice/auth";
+import appReducer from "./slice/app";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 
 const makeStore = () =>
   configureStore({
     reducer: {
       auth: authReducer,
+      app: appReducer,
     },
     devTools: process.env.NODE_ENV === "development",
   });

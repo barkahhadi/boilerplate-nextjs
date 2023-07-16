@@ -25,7 +25,6 @@ export default class CookieManager {
   }
 
   remove() {
-    console.log("remove cookie", this.key);
     this.cookies.remove(this.key, {
       path: "/",
       maxAge: this.maxAge,
