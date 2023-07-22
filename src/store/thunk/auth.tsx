@@ -8,10 +8,9 @@
 
 import { AppDispatch } from "..";
 import { authActions } from "../slice/auth";
-import axios, { Axios, AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
 import AuthCookie from "@utils/cookies/auth";
-import { HeaderProperties } from "@/types/http";
-import { headers } from "next/dist/client/components/headers";
+import Router from "next/router";
 
 export interface LoginData {
   url: string;
@@ -56,33 +55,35 @@ export const logout = () => {
 
 export const refreshToken = () => {
   return async (dispatch: AppDispatch) => {
-    dispatch(authActions.setLoading(true));
-    axios.defaults.headers.common[
-      "Authorization"
-    ] = `Bearer ${AuthCookie.token}`;
-    const { data, status } = await axios.post(
-      process.env.NEXT_PUBLIC_API_URL + "/auth/refresh"
-    );
-    dispatch(authActions.setLoading(false));
-
-    if (status === 200) {
-      AuthCookie.set(data);
-      dispatch(authActions.setCredential(data.user));
-    }
+    await axios
+      .post(process.env.NEXT_PUBLIC_API_URL + "/auth/refresh", {
+        token: AuthCookie.refreshToken,
+      })
+      .then(({ data }) => {
+        AuthCookie.set(data);
+        dispatch(authActions.setCredential(data.user));
+      })
+      .catch((err) => {
+        if (err instanceof AxiosError) {
+          if (err.response?.status === 400) {
+            AuthCookie.remove();
+            dispatch(authActions.removeCredential(null));
+            Router.push("/auth/login");
+          }
+        }
+      });
   };
 };
 
 export const me = () => {
   return async (dispatch: AppDispatch) => {
     try {
-      dispatch(authActions.setLoading(true));
       axios.defaults.headers.common[
         "Authorization"
       ] = `Bearer ${AuthCookie.token}`;
       const { data, status } = await axios.get(
         process.env.NEXT_PUBLIC_API_URL + "/me"
       );
-      dispatch(authActions.setLoading(false));
 
       if (status === 200) {
         dispatch(authActions.setCredential(data));

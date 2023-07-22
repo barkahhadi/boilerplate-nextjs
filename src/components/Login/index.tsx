@@ -23,7 +23,7 @@ import { useAppSelector, useAppDispatch } from "@/store";
 import { login } from "@/store/thunk/auth";
 import { useEffect, useState } from "react";
 import AuthCookie from "@utils/cookies/auth";
-import Router from "next/router";
+import { useRouter } from "next/router";
 import { AuthState } from "@/store/slice/auth";
 import { authActions } from "@/store/slice/auth";
 
@@ -31,6 +31,7 @@ const { Text } = Typography;
 const { Content } = Layout;
 
 const Login: React.FC | any = () => {
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const { isAuthenticated, isLoading, error }: AuthState = useAppSelector(
     (state) => state.auth
@@ -47,7 +48,7 @@ const Login: React.FC | any = () => {
 
   useEffect(() => {
     if (AuthCookie.isAuthenticated) {
-      Router.push(AuthCookie.user.role.defaultRoute || "/");
+      router.push("/");
     }
   }, []);
 
@@ -59,7 +60,6 @@ const Login: React.FC | any = () => {
       });
 
       setTimeout(() => {
-        Router.push(AuthCookie.user.role.defaultRoute || "/");
         setIsDisableButton(false);
       }, 500);
     }

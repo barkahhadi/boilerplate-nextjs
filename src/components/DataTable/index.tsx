@@ -1,3 +1,11 @@
+/*
+ * Author: Barkah Hadi
+ * Email: barkah.hadi@gmail.com
+ * Last Modified: Mon Jul 17 2023 12:27:02 PM
+ * File: index.tsx
+ * Description: DataTable Component
+ */
+
 import type { ColumnsType, TableProps } from "antd/es/table";
 
 export type DatatableOrderType = "asc" | "desc";
@@ -35,6 +43,11 @@ export type DataTableProps = {
   scrollWidth?: number;
   extraFilter?: React.ReactNode;
   refresh?: boolean;
+  itemPerpage?: number;
+  defaultOrder?: {
+    column: string;
+    type: DatatableOrderType;
+  };
 };
 
 export type DataTableAction = {
@@ -53,7 +66,7 @@ export interface DataTableActionProps {
   showDelete?: boolean;
   onEdit?: (record: any) => void;
   onDelete?: (record: any) => void;
-  extra?: React.ReactNode;
+  extra?: (record: any) => React.ReactElement;
 }
 
 export type DataTableOperator =

@@ -1,17 +1,30 @@
-import { useSlugify } from "@/hooks";
-import { useHttp } from "@/hooks/http";
-import { Alert, Button, Drawer, Form, Input, Select, Space } from "antd";
+import { useHttp } from "@/hooks/useHttp";
+import {
+  Alert,
+  Button,
+  Drawer,
+  Form,
+  Input,
+  Space,
+  Switch,
+  InputNumber,
+  Select,
+  Divider,
+} from "antd";
+import { PhoneOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 
 interface FormModuleProps {
   id?: string;
   title?: string;
   open: boolean;
+  listRole?: any[];
+  listOffice?: any[];
   onClose: () => void;
   onFinish?: () => void;
 }
 
-const ModulesForm: React.FC<FormModuleProps> = (props) => {
+const UsersFormResetPassword: React.FC<FormModuleProps> = (props) => {
   const { post, patch, isLoading, error } = useHttp();
   const { get, isLoading: isLoadingData } = useHttp();
   const {
@@ -22,12 +35,7 @@ const ModulesForm: React.FC<FormModuleProps> = (props) => {
     onFinish = () => {},
   } = props;
   const [form] = Form.useForm();
-  const [slugifyId, setSlugifyId] = useSlugify();
   const [formError, setFormError] = useState<string | null>(error);
-
-  useEffect(() => {
-    open && form.setFieldValue("id", slugifyId);
-  }, [slugifyId]);
 
   useEffect(() => {
     setFormError(error);
@@ -42,9 +50,7 @@ const ModulesForm: React.FC<FormModuleProps> = (props) => {
   const handleFinish = async (values: any) => {
     try {
       if (id) {
-        await patch(`/modules/${id}`, values);
-      } else {
-        await post("/modules", values);
+        await patch(`/users/change-password/${id}`, values);
       }
       handleClose();
       onFinish();
@@ -57,18 +63,13 @@ const ModulesForm: React.FC<FormModuleProps> = (props) => {
     if (open) {
       setFormError(null);
       form.resetFields();
-      if (id) {
-        get(`/modules/${id}`).then((res: any) => {
-          form.setFieldsValue(res.data);
-        });
-      }
     }
   }, [open]);
 
   return (
     <Drawer
       title={title}
-      width={460}
+      width={600}
       onClose={handleClose}
       open={open}
       closable={false}
@@ -87,10 +88,12 @@ const ModulesForm: React.FC<FormModuleProps> = (props) => {
       }
     >
       <Form
-        layout="vertical"
+        layout="horizontal"
         form={form}
         onFinish={handleFinish}
         disabled={isLoadingData}
+        labelCol={{ span: 8 }}
+        wrapperCol={{ span: 14 }}
       >
         {formError && (
           <Alert
@@ -100,39 +103,15 @@ const ModulesForm: React.FC<FormModuleProps> = (props) => {
             style={{ marginBottom: 16 }}
           />
         )}
-        <Form.Item
-          label="ID"
-          name="id"
-          rules={[{ required: true, message: "Please enter module ID" }]}
-        >
-          <Input placeholder="Enter module ID" readOnly />
+        <Form.Item name="password" label="New Password">
+          <Input.Password placeholder="Enter New Password" />
         </Form.Item>
-        <Form.Item
-          label="Name"
-          name="name"
-          rules={[{ required: true, message: "Please enter name" }]}
-        >
-          <Input
-            placeholder="Enter module name"
-            onChange={(e) => setSlugifyId(e.target.value)}
-          />
-        </Form.Item>
-        <Form.Item
-          label="Application"
-          name="applicationId"
-          rules={[{ required: true, message: "Please enter application" }]}
-        >
-          <Select
-            placeholder="Select application"
-            options={[
-              { value: "user-management", label: "User Management" },
-              { value: "dashboard", label: "Dashboard" },
-            ]}
-          />
+        <Form.Item name="confirmNewPassword" label="Confirm New Password">
+          <Input.Password placeholder="Confirm New Password" />
         </Form.Item>
       </Form>
     </Drawer>
   );
 };
 
-export default ModulesForm;
+export default UsersFormResetPassword;

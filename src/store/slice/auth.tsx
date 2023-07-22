@@ -1,9 +1,9 @@
-/**
+/*
  * Author: Barkah Hadi
- * Description: The auth reducer.
- * Last Modified: 02-06-2023
- *
- * email: barkah.hadi@gmail.com
+ * Email: barkah.hadi@gmail.com
+ * Last Modified: Mon Jul 17 2023 12:29:29 PM
+ * File: auth.tsx
+ * Description: Auth Slice
  */
 
 import { Slice, createSlice } from "@reduxjs/toolkit";
@@ -13,6 +13,7 @@ export interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string;
+  callBackUrl: string | null;
 }
 
 const initialState: AuthState = {
@@ -20,6 +21,7 @@ const initialState: AuthState = {
   isAuthenticated: false,
   isLoading: false,
   error: null,
+  callBackUrl: null,
 };
 
 const authSlice: Slice = createSlice({
@@ -36,6 +38,9 @@ const authSlice: Slice = createSlice({
       state.isAuthenticated = true;
       state.user = action.payload;
       state.error = null;
+    },
+    setCallBackUrl: (state: AuthState, action) => {
+      state.callBackUrl = action.payload;
     },
     removeCredential: (state: AuthState, action) => {
       state.isAuthenticated = false;

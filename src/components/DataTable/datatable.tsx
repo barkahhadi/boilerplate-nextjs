@@ -22,27 +22,20 @@ import type {
   DataTableRef,
   DataTableOperator,
 } from ".";
-import { useHttp } from "@/hooks/http";
+import { useHttp } from "@/hooks/useHttp";
 import { ReloadOutlined } from "@ant-design/icons";
 const { Search } = Input;
 const { Text } = Typography;
-interface FilterItem {
-  column: string;
-  operator: string;
-  value: string;
+
+interface FilterAction {
+  type: "set_filter" | "remove_filter" | "remove_all_filter";
+  key?: string;
+  operator?: DataTableOperator;
+  value?: any;
 }
 
 export const DataTable = forwardRef<DataTableRef, DataTableProps>(
   (props, ref) => {
-    const { error, isLoading, get } = useHttp();
-    const [page, setPage] = useState(1);
-    const [perPage, setPerPage] = useState(10);
-    const [searchVal, setSearchVal] = useState("");
-    const [total, setTotal] = useState(0);
-    const [order, setOrder] = useState(null);
-    const [orderType, setOrderType] = useState(null);
-    const [filter, setFilterState] = useState(null);
-
     let {
       key = "id",
       columns = [],
@@ -53,7 +46,42 @@ export const DataTable = forwardRef<DataTableRef, DataTableProps>(
       scrollWidth = 1000,
       extraFilter = [],
       refresh = true,
+      itemPerpage = 10,
+      defaultOrder = null,
     } = props;
+
+    const { isLoading, get } = useHttp();
+    const [page, setPage] = useState(1);
+    const [perPage, setPerPage] = useState(itemPerpage);
+    const [searchVal, setSearchVal] = useState("");
+    const [total, setTotal] = useState(0);
+    const [order, setOrder] = useState(
+      (defaultOrder && defaultOrder.column) || null
+    );
+    const [orderType, setOrderType] = useState(
+      (defaultOrder && defaultOrder.type) || null
+    );
+    const [filter, dispatchFilter] = useReducer(
+      (state: any, action: FilterAction) => {
+        if (action.type == "set_filter" && action.key && action.value) {
+          return {
+            ...state,
+            [action.key]: {
+              [action.operator || "eq"]: action.value,
+            },
+          };
+        } else if (action.type == "remove_filter" && action.key) {
+          const copyFilter = { ...state };
+          if (copyFilter[action.key]) {
+            delete copyFilter[action.key];
+          }
+          return copyFilter;
+        } else if (action.type == "remove_all_filter") {
+          return {};
+        }
+      },
+      {}
+    );
 
     const [dataSource, dispatchDataSource] = useReducer(
       (_: any, action: any) => {
@@ -94,8 +122,9 @@ export const DataTable = forwardRef<DataTableRef, DataTableProps>(
             );
           }
         }
-
-        queryArr.push(queryFilter.join("&"));
+        if (queryFilter.length > 0) {
+          queryArr.push(queryFilter.join("&"));
+        }
       }
 
       return "?" + queryArr.join("&");
@@ -107,20 +136,24 @@ export const DataTable = forwardRef<DataTableRef, DataTableProps>(
       operator: DataTableOperator = "eq"
     ) => {
       if (value) {
-        setFilterState({
-          ...filter,
-          [key]: {
-            [operator]: value,
-          },
+        dispatchFilter({
+          type: "set_filter",
+          key: key,
+          operator: operator,
+          value: value,
         });
       } else {
-        const copyFilter = { ...filter };
-        if (copyFilter[key]) {
-          delete copyFilter[key];
-        }
-
-        setFilterState(copyFilter);
+        dispatchFilter({
+          type: "remove_filter",
+          key: key,
+        });
       }
+    };
+
+    const removeAllFilter = () => {
+      dispatchFilter({
+        type: "remove_all_filter",
+      });
     };
 
     const reload = async () => {
@@ -138,14 +171,19 @@ export const DataTable = forwardRef<DataTableRef, DataTableProps>(
 
       const response = await get(url + queryString);
       if (response) {
-        dispatchDataSource({
-          type: "add_key",
-          data: response.data.data,
-        });
+        if (
+          typeof response.data.data != "undefined" &&
+          response.data.total != "undefined"
+        ) {
+          dispatchDataSource({
+            type: "add_key",
+            data: response.data.data,
+          });
 
-        setTotal(response.data.total);
-        if (response.data.data.length == 0 && page > 1) {
-          setPage(page - 1);
+          setTotal(response.data.total);
+          if (response.data.data.length == 0 && page > 1) {
+            setPage(page - 1);
+          }
         }
       }
     };
@@ -160,21 +198,14 @@ export const DataTable = forwardRef<DataTableRef, DataTableProps>(
       reload();
     }, [searchVal, order, orderType, page, perPage, filter]);
 
-    useEffect(() => {
-      if (url) {
-        reload();
-      }
-    }, []);
-
     const onChange: TableProps<typeof columns>["onChange"] = (
       pagination,
       filters,
-      sorter,
-      extra
+      sorter
     ) => {
       if (isLoading) return;
       if (sorter && !Array.isArray(sorter)) {
-        setOrder(sorter.field);
+        setOrder(sorter.field as string);
         setOrderType(sorter.order == "ascend" ? "asc" : "desc");
       }
 
@@ -187,6 +218,7 @@ export const DataTable = forwardRef<DataTableRef, DataTableProps>(
     useImperativeHandle(ref, () => ({
       reload,
       setFilter,
+      removeAllFilter,
     }));
 
     return (

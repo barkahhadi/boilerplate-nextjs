@@ -1,32 +1,53 @@
-/**
+/*
  * Author: Barkah Hadi
- * Description: The auth reducer.
- * Last Modified: 02-06-2023
- *
- * email: barkah.hadi@gmail.com
+ * Email: barkah.hadi@gmail.com
+ * Last Modified: Mon Jul 17 2023 12:29:13 PM
+ * File: app.tsx
+ * Description: App Slice
  */
 
 import { Slice, createSlice } from "@reduxjs/toolkit";
+import { NotificationPlacement } from "antd/es/notification/interface";
 
-export interface AppState {
-  title?: string;
-  subtitle?: string;
+export type NotificationType = "success" | "info" | "warning" | "error";
+
+export interface NotificationAppState {
+  type?: NotificationType;
+  message: string;
+  description?: string;
+  open: boolean;
+  placement?: NotificationPlacement;
 }
 
-const initialState: AppState = {
-  title: "",
-  subtitle: "",
+export interface ApplicationState {
+  notification?: NotificationAppState;
+}
+
+const initialState: ApplicationState = {
+  notification: {
+    open: false,
+    type: "info",
+    message: "",
+    description: "",
+    placement: "bottomRight",
+  },
 };
 
 const appSlice: Slice = createSlice({
   name: "app",
   initialState: initialState,
   reducers: {
-    setTitle: (state: AppState, action) => {
-      state.title = action.payload;
+    openNotification(state, action) {
+      state.notification = {
+        ...state.notification,
+        ...action.payload,
+        open: true,
+      };
     },
-    setSubtitle: (state: AppState, action) => {
-      state.subtitle = action.payload;
+    closeNotification(state) {
+      state.notification = {
+        ...initialState,
+      };
     },
   },
 });

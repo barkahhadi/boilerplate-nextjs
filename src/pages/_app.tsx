@@ -12,13 +12,18 @@ import wrapper, { useAppDispatch } from "@/store";
 import type { Page } from "@/types/page";
 import "@/styles/globals.css";
 import { withCookies } from "react-cookie";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAsync } from "react-use";
 import AuthCookie from "@utils/cookies/auth";
 import { me } from "@store/thunk/auth";
 import { useRouter } from "next/router";
 import { PUBLIC_URL } from "@/constants";
 import dynamic from "next/dynamic";
+import { useAppSelector } from "@/store";
+import { notification } from "antd";
+import { NotificationInstance } from "antd/es/notification/interface";
+import { ApplicationState, NotificationType } from "@/store/slice/app";
+
 const Loading = dynamic(() => import("@components/Layout/Loading"), {
   ssr: false,
 });
@@ -33,6 +38,12 @@ const App = ({ Component, pageProps }: Props) => {
   const [isLoading, setLoading] = useState(true);
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
+  const { notification: notifState }: ApplicationState = useAppSelector(
+    (state) => state.app
+  );
+
+  const [notif, notificationContext] = notification.useNotification();
 
   useAsync(async () => {
     if (AuthCookie.isAuthenticated) {
@@ -50,10 +61,30 @@ const App = ({ Component, pageProps }: Props) => {
     if (!AuthCookie.isAuthenticated && !PUBLIC_URL.includes(router.pathname)) {
       router.push("/auth/login");
       setLoading(false);
+    } else if (isAuthenticated && PUBLIC_URL.includes(router.pathname)) {
+      router.push("/");
+      setLoading(false);
     } else {
       setLoading(false);
     }
   }, [router.pathname]);
+
+  useEffect(() => {
+    if (isAuthenticated && PUBLIC_URL.includes(router.pathname)) {
+      router.push("/");
+    }
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (notifState.open) {
+      notif[notifState.type]({
+        message: notifState.message,
+        description:
+          notifState.description !== undefined ? notifState.description : "",
+        placement: notifState.placement,
+      });
+    }
+  }, [notifState]);
 
   // If your page has a layout defined, use it. Otherwise, use the default layout.
   let getLayout =
@@ -63,6 +94,7 @@ const App = ({ Component, pageProps }: Props) => {
     <div>
       <Component {...pageProps} />
       <Loading loading={isLoading} />
+      {notificationContext}
     </div>
   );
 };

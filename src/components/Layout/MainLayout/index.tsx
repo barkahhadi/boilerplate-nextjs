@@ -1,3 +1,11 @@
+/*
+ * Author: Barkah Hadi
+ * Email: barkah.hadi@gmail.com
+ * Last Modified: Mon Jul 17 2023 12:28:05 PM
+ * File: index.tsx
+ * Description: Main Layout
+ */
+
 import { LogoutOutlined } from "@ant-design/icons";
 import { ProConfigProvider } from "@ant-design/pro-components";
 import dynamic from "next/dynamic";

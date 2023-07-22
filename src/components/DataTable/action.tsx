@@ -6,8 +6,8 @@
  * Description: DataTable Component
  */
 
-import React from "react";
-import { Button, Popconfirm, Space } from "antd";
+import React, { ReactElement } from "react";
+import { Button, Popconfirm, Space, Tooltip } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import {
   EditOutlined,
@@ -26,20 +26,25 @@ export const dataTableAction = (props: DataTableActionProps) => {
     width = "auto",
     showEdit = false,
     showDelete = false,
-    extra = [],
+    extra = null,
     onEdit = () => {},
     onDelete = () => {},
   } = props;
 
   let actionWidth: number = 0;
-  if (width == "auto") {
-    actionWidth = 20;
-    if (showEdit) actionWidth += 40;
-    if (showDelete) actionWidth += 40;
-    if (Array.isArray(extra)) {
-      actionWidth += 40 * extra.length;
+  if (showEdit) actionWidth += 40;
+  if (showDelete) actionWidth += 40;
+  if (extra) {
+    const extraProps = extra({}).props.children;
+    if (extraProps) {
+      if (Array.isArray(extraProps)) {
+        actionWidth += 40 * extraProps.length;
+      } else {
+        actionWidth += 40;
+      }
     }
   }
+  if (width !== "auto" && typeof width == "number") actionWidth = width;
 
   const column: ColumnsType = [
     {
@@ -50,15 +55,18 @@ export const dataTableAction = (props: DataTableActionProps) => {
       width: actionWidth,
       render: (_, record) => (
         <Space size="middle">
+          {extra && extra(record)}
           {showEdit && (
-            <Button
-              type="primary"
-              ghost
-              shape="circle"
-              icon={<EditOutlined />}
-              size="small"
-              onClick={() => onEdit(record)}
-            />
+            <Tooltip placement="topRight" title="Edit Item" arrow={true}>
+              <Button
+                type="primary"
+                ghost
+                shape="circle"
+                icon={<EditOutlined />}
+                size="small"
+                onClick={() => onEdit(record)}
+              />
+            </Tooltip>
           )}
           {showDelete && (
             <Popconfirm
@@ -68,15 +76,16 @@ export const dataTableAction = (props: DataTableActionProps) => {
               placement="left"
               onConfirm={() => onDelete(record)}
             >
-              <Button
-                danger
-                shape="circle"
-                icon={<DeleteOutlined />}
-                size="small"
-              />
+              <Tooltip placement="topRight" title="Delete Item" arrow={true}>
+                <Button
+                  danger
+                  shape="circle"
+                  icon={<DeleteOutlined />}
+                  size="small"
+                />
+              </Tooltip>
             </Popconfirm>
           )}
-          {extra}
         </Space>
       ),
     },

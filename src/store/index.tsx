@@ -1,9 +1,9 @@
-/**
+/*
  * Author: Barkah Hadi
- * Description: The Redux store.
- * Last Modified: 02-06-2023
- *
- * email: barkah.hadi@gmail.com
+ * Email: barkah.hadi@gmail.com
+ * Last Modified: Mon Jul 17 2023 12:28:52 PM
+ * File: index.tsx
+ * Description: Redux Store
  */
 
 import { Action, ThunkAction, configureStore } from "@reduxjs/toolkit";
