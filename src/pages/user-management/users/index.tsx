@@ -5,8 +5,6 @@ import DataTable, {
   DataTableRef,
 } from "@components/DataTable";
 import { ColumnsType } from "antd/es/table";
-import { useAppDispatch } from "@store/index";
-import { appActions } from "@/store/slice/app";
 import UserForm from "./form";
 import UsersFormResetPassword from "./form-reset-password";
 import { Button, message, Tooltip } from "antd";
@@ -29,7 +27,7 @@ const UserPage: React.FC = (props) => {
   const { can } = useCasl("user-management:users");
 
   const refreshData = () => {
-    // datatableRef.current?.reload();
+    datatableRef.current?.reload();
   };
 
   const columns: ColumnsType = [

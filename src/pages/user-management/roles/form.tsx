@@ -11,7 +11,7 @@ import { useHttp } from "@/hooks/useHttp";
 import { Alert, Button, Card, Drawer, Form, Input, Space, Tree } from "antd";
 import { useEffect, useState } from "react";
 import { Application } from "./types";
-import type { DataNode, TreeProps } from "antd/es/tree";
+import type { DataNode } from "antd/es/tree";
 import { useCasl } from "@/hooks/useCasl";
 import { Ability } from "@/constants/ability";
 

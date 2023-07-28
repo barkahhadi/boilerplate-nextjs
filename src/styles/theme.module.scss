@@ -22,17 +22,17 @@ $sidebar-background: #3626a7;
 $sidebar-menu-selected-color: #657ed4;
 
 .ant-layout-sider-dark {
-  background: lighten($sidebar-background, 2%) !important;
+  background: $sidebar-background !important;
 }
 
 .ant-menu-dark {
-  background: $sidebar-background !important;
+  background: darken($sidebar-background, 5%) !important;
 
   .ant-menu-sub {
-    background-color: $sidebar-background !important;
+    background-color: darken($sidebar-background, 5%) !important;
   }
   .ant-menu-item:hover {
-    background-color: darken($sidebar-background, 2%) !important;
+    background-color: darken($sidebar-background, 8%) !important;
   }
 
   .ant-menu-item.ant-menu-item-selected {
@@ -76,7 +76,7 @@ $sidebar-menu-selected-color: #657ed4;
   height: 100vh;
 }
 .ant-menu-submenu-title:active {
-  background-color: darken($sidebar-background, 2%) !important;
+  background-color: darken($sidebar-background, 5%) !important;
 }
 :export {
   primaryColor: $primary-color;

@@ -1,9 +1,9 @@
-/**
+/*
  * Author: Barkah Hadi
+ * Email: barkah.hadi@gmail.com
+ * Last Modified: Fri Jul 28 2023 7:55:05 PM
+ * File: _document.tsx
  * Description: The document component.
- * Last Modified: 02-06-2023
- *
- * email: barkah.hadi@gmail.com
  */
 
 import { Html, Head, Main, NextScript } from "next/document";

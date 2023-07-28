@@ -1,3 +1,11 @@
+/*
+ * Author: Barkah Hadi
+ * Email: barkah.hadi@gmail.com
+ * Last Modified: Fri Jul 28 2023 7:53:26 PM
+ * File: index.tsx
+ * Description: Casl Utility
+ */
+
 import { Ability } from "@/constants/ability";
 import {
   ExtractSubjectType,

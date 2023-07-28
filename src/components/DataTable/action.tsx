@@ -6,9 +6,9 @@
  * Description: DataTable Component
  */
 
-import React, { ReactElement } from "react";
+import React from "react";
 import { Button, Popconfirm, Space, Tooltip } from "antd";
-import type { ColumnGroupType, ColumnsType } from "antd/es/table";
+import type { ColumnsType } from "antd/es/table";
 import {
   EditOutlined,
   DeleteOutlined,
@@ -16,7 +16,6 @@ import {
 } from "@ant-design/icons";
 
 import { DataTableActionProps } from ".";
-import { ColumnType } from "antd/es/list";
 
 export const dataTableAction = (
   props: DataTableActionProps

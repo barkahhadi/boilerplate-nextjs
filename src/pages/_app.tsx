@@ -1,9 +1,9 @@
-/**
+/*
  * Author: Barkah Hadi
- * Description: The main app component.
- * Last Modified: 02-06-2023
- *
- * email: barkah.hadi@gmail.com
+ * Email: barkah.hadi@gmail.com
+ * Last Modified: Fri Jul 28 2023 7:54:49 PM
+ * File: _app.tsx
+ * Description: The main entry point for the app.
  */
 
 import type { AppProps } from "next/app";
@@ -21,8 +21,7 @@ import { PUBLIC_URL } from "@/constants";
 import dynamic from "next/dynamic";
 import { useAppSelector } from "@/store";
 import { notification } from "antd";
-import { NotificationInstance } from "antd/es/notification/interface";
-import { ApplicationState, NotificationType } from "@/store/slice/app";
+import { ApplicationState } from "@/store/slice/app";
 
 const Loading = dynamic(() => import("@components/Layout/Loading"), {
   ssr: false,

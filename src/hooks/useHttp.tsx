@@ -6,9 +6,8 @@
  * Description: Custom hook for handling http requests.
  */
 
-import axios, { AxiosError, AxiosInstance } from "axios";
+import { AxiosError, AxiosInstance } from "axios";
 import { useState, useCallback } from "react";
-import AuthCookie from "@utils/cookies/auth";
 import { useAppDispatch } from "@/store";
 import { refreshToken } from "@/store/thunk/auth";
 import { openNotification } from "@/store/thunk/app";

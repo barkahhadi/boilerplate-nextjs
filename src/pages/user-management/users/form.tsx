@@ -7,7 +7,6 @@ import {
   Input,
   Space,
   Switch,
-  InputNumber,
   Select,
   Divider,
 } from "antd";

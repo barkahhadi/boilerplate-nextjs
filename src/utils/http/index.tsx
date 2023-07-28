@@ -1,3 +1,11 @@
+/*
+ * Author: Barkah Hadi
+ * Email: barkah.hadi@gmail.com
+ * Last Modified: Fri Jul 28 2023 7:53:44 PM
+ * File: index.tsx
+ * Description: Http Utility
+ */
+
 import axios, {
   AxiosError,
   AxiosInstance,
@@ -6,7 +14,6 @@ import axios, {
   HeadersDefaults,
 } from "axios";
 import AuthCookie from "@utils/cookies/auth";
-import { on } from "events";
 
 export interface HttpConfig {
   onExpiredToken?: (originalRequest: any) => void;

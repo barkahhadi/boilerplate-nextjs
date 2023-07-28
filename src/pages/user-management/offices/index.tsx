@@ -1,3 +1,11 @@
+/*
+ * Author: Barkah Hadi
+ * Email: barkah.hadi@gmail.com
+ * Last Modified: Fri Jul 28 2023 7:52:47 PM
+ * File: index.tsx
+ * Description: Office List
+ */
+
 import React, { useRef, useState } from "react";
 import DataTable, {
   dataTableAction,
@@ -5,10 +13,8 @@ import DataTable, {
   DataTableRef,
 } from "@components/DataTable";
 import { ColumnsType } from "antd/es/table";
-import { useAppDispatch } from "@store/index";
-import { appActions } from "@/store/slice/app";
 import OfficeForm from "./form";
-import { Button, Select, message } from "antd";
+import { Button, message } from "antd";
 import { PlusCircleOutlined } from "@ant-design/icons";
 import { useHttp } from "@/hooks/useHttp";
 import { NoticeType } from "antd/es/message/interface";

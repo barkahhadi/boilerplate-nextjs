@@ -1,3 +1,11 @@
+/*
+ * Author: Barkah Hadi
+ * Email: barkah.hadi@gmail.com
+ * Last Modified: Fri Jul 28 2023 7:51:22 PM
+ * File: app.tsx
+ * Description: App Thunk
+ */
+
 import { NotificationPlacement } from "antd/es/notification/interface";
 import { AppDispatch } from "..";
 import { NotificationType, appActions } from "../slice/app";

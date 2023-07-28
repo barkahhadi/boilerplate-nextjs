@@ -1,17 +1,5 @@
 import { useHttp } from "@/hooks/useHttp";
-import {
-  Alert,
-  Button,
-  Drawer,
-  Form,
-  Input,
-  Space,
-  Switch,
-  InputNumber,
-  Select,
-  Divider,
-} from "antd";
-import { PhoneOutlined } from "@ant-design/icons";
+import { Alert, Button, Drawer, Form, Input, Space } from "antd";
 import { useEffect, useState } from "react";
 import { useCasl } from "@/hooks/useCasl";
 import { Ability } from "@/constants/ability";
@@ -27,8 +15,8 @@ interface FormModuleProps {
 }
 
 const UsersFormResetPassword: React.FC<FormModuleProps> = (props) => {
-  const { post, patch, isLoading, error } = useHttp();
-  const { get, isLoading: isLoadingData } = useHttp();
+  const { patch, isLoading, error } = useHttp();
+  const { isLoading: isLoadingData } = useHttp();
   const {
     id = null,
     title,
