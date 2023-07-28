@@ -8,11 +8,13 @@ import { ColumnsType } from "antd/es/table";
 import { useAppDispatch } from "@store/index";
 import { appActions } from "@/store/slice/app";
 import OfficeForm from "./form";
-import { PageContainer } from "@ant-design/pro-components";
 import { Button, Select, message } from "antd";
 import { PlusCircleOutlined } from "@ant-design/icons";
 import { useHttp } from "@/hooks/useHttp";
 import { NoticeType } from "antd/es/message/interface";
+import { useCasl } from "@/hooks/useCasl";
+import { Ability } from "@/constants/ability";
+import PageContainer from "@/components/Layout/PageContainer";
 
 const OfficePage: React.FC = (props) => {
   const [id, setId] = useState<string>(null);
@@ -20,7 +22,7 @@ const OfficePage: React.FC = (props) => {
   const datatableRef = useRef<DataTableRef>(null);
   const { del } = useHttp();
   const [messageApi, contextHolder] = message.useMessage();
-
+  const { can } = useCasl("user-management:offices");
   const refreshData = () => {
     datatableRef.current?.reload();
   };
@@ -37,8 +39,8 @@ const OfficePage: React.FC = (props) => {
       sorter: true,
     },
     dataTableAction({
-      showEdit: true,
-      showDelete: true,
+      showEdit: can(Ability.UPDATE),
+      showDelete: can(Ability.DELETE),
       onDelete: async (record) => {
         await del(`/offices/${record.id}`);
         refreshData();
@@ -64,40 +66,44 @@ const OfficePage: React.FC = (props) => {
   };
 
   return (
-    <>
-      {contextHolder}
-      <PageContainer
-        title="Offices"
-        extra={
-          <Button
-            type="primary"
-            onClick={() => {
-              setId(null);
-              setOpen(true);
+    can(Ability.READ) && (
+      <>
+        {contextHolder}
+        <PageContainer
+          title="Offices"
+          extra={
+            can(Ability.CREATE) && (
+              <Button
+                type="primary"
+                onClick={() => {
+                  setId(null);
+                  setOpen(true);
+                }}
+              >
+                <PlusCircleOutlined />
+                Add New Office
+              </Button>
+            )
+          }
+        >
+          <OfficeForm
+            id={id}
+            open={open}
+            onClose={() => setOpen(false)}
+            onFinish={() => {
+              refreshData();
+              if (id) {
+                showMessage("Record updated successfully!");
+              } else {
+                showMessage("Record added successfully!");
+              }
             }}
-          >
-            <PlusCircleOutlined />
-            Add New Office
-          </Button>
-        }
-      >
-        <OfficeForm
-          id={id}
-          open={open}
-          onClose={() => setOpen(false)}
-          onFinish={() => {
-            refreshData();
-            if (id) {
-              showMessage("Record updated successfully!");
-            } else {
-              showMessage("Record added successfully!");
-            }
-          }}
-          title={id ? "Edit Office" : "Add New Office"}
-        />
-        <DataTable {...dataTableConfig} ref={datatableRef} />
-      </PageContainer>
-    </>
+            title={id ? "Edit Office" : "Add New Office"}
+          />
+          <DataTable {...dataTableConfig} ref={datatableRef} />
+        </PageContainer>
+      </>
+    )
   );
 };
 

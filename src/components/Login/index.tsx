@@ -84,7 +84,7 @@ const Login: React.FC | any = () => {
         <Card className={classes.cardLogin}>
           <div className={classes.logo}>
             <Image
-              src="/images/app-logo/logo-text-dark.png"
+              src="/images/app-logo/logo-text-light.png"
               width={160}
               preview={false}
               alt="logo"

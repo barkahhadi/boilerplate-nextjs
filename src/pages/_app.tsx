@@ -10,12 +10,12 @@ import type { AppProps } from "next/app";
 import MainLayout from "@components/Layout/MainLayout";
 import wrapper, { useAppDispatch } from "@/store";
 import type { Page } from "@/types/page";
-import "@/styles/globals.css";
+import "@/styles/globals.scss";
 import { withCookies } from "react-cookie";
 import { useEffect, useState } from "react";
 import { useAsync } from "react-use";
 import AuthCookie from "@utils/cookies/auth";
-import { me } from "@store/thunk/auth";
+import { getPermissions, me } from "@store/thunk/auth";
 import { useRouter } from "next/router";
 import { PUBLIC_URL } from "@/constants";
 import dynamic from "next/dynamic";
@@ -38,7 +38,9 @@ const App = ({ Component, pageProps }: Props) => {
   const [isLoading, setLoading] = useState(true);
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const { isAuthenticated } = useAppSelector((state) => state.auth);
+  const { isAuthenticated, isLoadingPermission } = useAppSelector(
+    (state) => state.auth
+  );
   const { notification: notifState }: ApplicationState = useAppSelector(
     (state) => state.app
   );
@@ -48,7 +50,8 @@ const App = ({ Component, pageProps }: Props) => {
   useAsync(async () => {
     if (AuthCookie.isAuthenticated) {
       try {
-        if (isInitialRender) dispatch(me());
+        if (isInitialRender) dispatch(getPermissions());
+        await dispatch(me());
 
         isInitialRender = false;
       } catch (err: unknown) {
@@ -89,6 +92,10 @@ const App = ({ Component, pageProps }: Props) => {
   // If your page has a layout defined, use it. Otherwise, use the default layout.
   let getLayout =
     Component.getLayout || ((page: any) => <MainLayout>{page}</MainLayout>);
+
+  // if (isLoadingPermission) {
+  //   return <Loading loading={true} />;
+  // }
 
   return getLayout(
     <div>

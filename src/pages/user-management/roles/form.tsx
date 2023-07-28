@@ -12,6 +12,8 @@ import { Alert, Button, Card, Drawer, Form, Input, Space, Tree } from "antd";
 import { useEffect, useState } from "react";
 import { Application } from "./types";
 import type { DataNode, TreeProps } from "antd/es/tree";
+import { useCasl } from "@/hooks/useCasl";
+import { Ability } from "@/constants/ability";
 
 interface FormRoleProps {
   id?: string;
@@ -29,7 +31,7 @@ interface AccessData {
 
 interface PermissionData {
   application: string;
-  access: AccessData[];
+  ability: AccessData[];
 }
 
 const RoleForm: React.FC<FormRoleProps> = (props) => {
@@ -48,6 +50,7 @@ const RoleForm: React.FC<FormRoleProps> = (props) => {
   const [formError, setFormError] = useState<string | null>(error);
   const [permissionData, setPermissionData] = useState<any>(null);
   const [checkedKeys, setCheckedKeys] = useState<React.Key[]>([]);
+  const { can } = useCasl("user-management:roles");
 
   useEffect(() => {
     open && form.setFieldValue("id", slugifyId);
@@ -60,6 +63,8 @@ const RoleForm: React.FC<FormRoleProps> = (props) => {
   const handleClose = () => {
     open && form.resetFields();
     setFormError(null);
+    setPermissionData(null);
+    setCheckedKeys([]);
     onClose();
   };
 
@@ -113,24 +118,24 @@ const RoleForm: React.FC<FormRoleProps> = (props) => {
         (item: any) => item.key == app.application
       );
       if (appIndex < 0) return;
-      app.access.forEach((access: AccessData) => {
+      app.ability.forEach((ability: AccessData) => {
         const moduleIndex = permissionData[appIndex].children.findIndex(
-          (item: any) => item.key == app.application + ":" + access.module
+          (item: any) => item.key == app.application + ":" + ability.module
         );
         if (moduleIndex < 0) return;
 
-        access.permissions.forEach((permission: string) => {
+        ability.permissions.forEach((permission: string) => {
           const permissionIndex = permissionData[appIndex].children[
             moduleIndex
           ].children.findIndex(
             (item: any) =>
               item.key ==
-              app.application + ":" + access.module + ":" + permission
+              app.application + ":" + ability.module + ":" + permission
           );
 
           if (permissionIndex < 0) return;
           checkedKeys.push(
-            app.application + ":" + access.module + ":" + permission
+            app.application + ":" + ability.module + ":" + permission
           );
         });
       });
@@ -154,7 +159,7 @@ const RoleForm: React.FC<FormRoleProps> = (props) => {
       if (appIndex < 0) {
         permissionData.push({
           application: app,
-          access: [
+          ability: [
             {
               module: module,
               permissions: [permission],
@@ -162,16 +167,16 @@ const RoleForm: React.FC<FormRoleProps> = (props) => {
           ],
         });
       } else {
-        const moduleIndex = permissionData[appIndex].access.findIndex(
+        const moduleIndex = permissionData[appIndex].ability.findIndex(
           (item) => item.module == module
         );
         if (moduleIndex < 0) {
-          permissionData[appIndex].access.push({
+          permissionData[appIndex].ability.push({
             module: module,
             permissions: [permission],
           });
         } else {
-          permissionData[appIndex].access[moduleIndex].permissions.push(
+          permissionData[appIndex].ability[moduleIndex].permissions.push(
             permission
           );
         }
@@ -211,80 +216,83 @@ const RoleForm: React.FC<FormRoleProps> = (props) => {
   };
 
   return (
-    <Drawer
-      title={title}
-      width={760}
-      onClose={handleClose}
-      open={open}
-      closable={false}
-      extra={
-        <Space>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button
-            type="primary"
-            onClick={() => form.submit()}
-            disabled={isLoadingData}
-            loading={isLoading}
-          >
-            Submit
-          </Button>
-        </Space>
-      }
-    >
-      <Form
-        layout="vertical"
-        form={form}
-        onFinish={handleFinish}
-        disabled={isLoadingData}
+    can(Ability.CREATE_OR_UPDATE) && (
+      <Drawer
+        title={title}
+        width={760}
+        onClose={handleClose}
+        open={open}
+        closable={false}
+        extra={
+          <Space>
+            <Button onClick={handleClose}>Cancel</Button>
+            <Button
+              type="primary"
+              onClick={() => form.submit()}
+              disabled={isLoadingData}
+              loading={isLoading}
+            >
+              Submit
+            </Button>
+          </Space>
+        }
       >
-        {formError && (
-          <Alert
-            message={formError}
-            type="error"
-            showIcon
-            style={{ marginBottom: 16 }}
-          />
-        )}
+        <Form
+          layout="vertical"
+          form={form}
+          onFinish={handleFinish}
+          disabled={isLoadingData}
+        >
+          {formError && (
+            <Alert
+              message={formError}
+              type="error"
+              showIcon
+              style={{ marginBottom: 16 }}
+            />
+          )}
 
-        <Form.Item
-          label="ID"
-          name="id"
-          rules={[{ required: true, message: "Please enter role ID" }]}
-        >
-          <Input placeholder="Enter role ID" readOnly />
-        </Form.Item>
-        <Form.Item
-          label="Name"
-          name="name"
-          rules={[{ required: true, message: "Please enter name" }]}
-        >
-          <Input
-            placeholder="Enter role name"
-            onChange={(e) => setSlugifyId(e.target.value)}
+          <Form.Item
+            label="ID"
+            name="id"
+            rules={[{ required: true, message: "Please enter role ID" }]}
+          >
+            <Input placeholder="Enter role ID" readOnly />
+          </Form.Item>
+          <Form.Item
+            label="Name"
+            name="name"
+            rules={[{ required: true, message: "Please enter name" }]}
+          >
+            <Input
+              placeholder="Enter role name"
+              onChange={(e) => setSlugifyId(e.target.value)}
+            />
+          </Form.Item>
+          <Form.Item
+            label="Description"
+            name="description"
+            rules={[
+              {
+                max: 200,
+                message: "Description must be less than 200 character",
+              },
+            ]}
+          >
+            <Input.TextArea rows={2} />
+          </Form.Item>
+        </Form>
+        <Card size="small" title="Permissions">
+          <Tree
+            disabled={isLoadingData}
+            checkable
+            onCheck={onCheck}
+            treeData={permissionData}
+            checkedKeys={checkedKeys}
           />
-        </Form.Item>
-        <Form.Item
-          label="Description"
-          name="description"
-          rules={[
-            {
-              max: 200,
-              message: "Description must be less than 200 character",
-            },
-          ]}
-        >
-          <Input.TextArea rows={2} />
-        </Form.Item>
-      </Form>
-      <Card size="small" title="Permissions">
-        <Tree
-          checkable
-          onCheck={onCheck}
-          treeData={permissionData}
-          checkedKeys={checkedKeys}
-        />
-      </Card>
-    </Drawer>
+        </Card>
+      </Drawer>
+    )
   );
 };
 

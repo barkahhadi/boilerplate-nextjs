@@ -11,6 +11,8 @@ import {
 } from "antd";
 import { PhoneOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
+import { useCasl } from "@/hooks/useCasl";
+import { Ability } from "@/constants/ability";
 
 interface FormModuleProps {
   id?: string;
@@ -32,7 +34,7 @@ const ModulesForm: React.FC<FormModuleProps> = (props) => {
   } = props;
   const [form] = Form.useForm();
   const [formError, setFormError] = useState<string | null>(error);
-  const [isChecked, setIsChecked] = useState(false);
+  const { can } = useCasl("user-management:offices");
 
   useEffect(() => {
     setFormError(error);
@@ -76,94 +78,97 @@ const ModulesForm: React.FC<FormModuleProps> = (props) => {
   }, [open]);
 
   return (
-    <Drawer
-      title={title}
-      width={600}
-      onClose={handleClose}
-      open={open}
-      closable={false}
-      extra={
-        <Space>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button
-            type="primary"
-            onClick={() => form.submit()}
-            disabled={isLoadingData}
-            loading={isLoading}
-          >
-            Submit
-          </Button>
-        </Space>
-      }
-    >
-      <Form
-        layout="horizontal"
-        form={form}
-        onFinish={handleFinish}
-        disabled={isLoadingData}
-        labelCol={{ span: 6 }}
-        wrapperCol={{ span: 16 }}
+    can(Ability.CREATE_OR_UPDATE) && (
+      <Drawer
+        title={title}
+        width={600}
+        onClose={handleClose}
+        open={open}
+        closable={false}
+        extra={
+          <Space>
+            <Button onClick={handleClose}>Cancel</Button>
+            <Button
+              type="primary"
+              onClick={() => form.submit()}
+              disabled={isLoadingData}
+              loading={isLoading}
+            >
+              Submit
+            </Button>
+          </Space>
+        }
       >
-        {formError && (
-          <Alert
-            message={formError}
-            type="error"
-            showIcon
-            style={{ marginBottom: 16 }}
-          />
-        )}
-        <Form.Item
-          label="ID"
-          name="id"
-          rules={[{ required: true, message: "Please enter Office ID" }]}
+        <Form
+          layout="horizontal"
+          form={form}
+          colon={true}
+          onFinish={handleFinish}
+          disabled={isLoadingData}
+          labelCol={{ span: 6 }}
+          wrapperCol={{ span: 16 }}
         >
-          <Input placeholder="Enter office ID" />
-        </Form.Item>
-        <Form.Item
-          label="Name"
-          name="name"
-          rules={[{ required: true, message: "Please enter office name" }]}
-        >
-          <Input placeholder="Enter office name" />
-        </Form.Item>
-        <Form.Item label="LatLng" style={{ marginBottom: 0 }}>
+          {formError && (
+            <Alert
+              message={formError}
+              type="error"
+              showIcon
+              style={{ marginBottom: 16 }}
+            />
+          )}
           <Form.Item
-            name="latitude"
-            style={{ display: "inline-block", width: "calc(50% - 12px)" }}
+            label="ID"
+            name="id"
+            rules={[{ required: true, message: "Please enter Office ID" }]}
           >
-            <InputNumber placeholder="Latitude" style={{ width: "100%" }} />
+            <Input placeholder="Enter office ID" />
           </Form.Item>
-          <span
-            style={{
-              display: "inline-block",
-              width: "24px",
-              lineHeight: "32px",
-              textAlign: "center",
-            }}
-          >
-            -
-          </span>
           <Form.Item
-            name="longitude"
-            style={{ display: "inline-block", width: "calc(50% - 12px)" }}
+            label="Name"
+            name="name"
+            rules={[{ required: true, message: "Please enter office name" }]}
           >
-            <InputNumber placeholder="Longitude" style={{ width: "100%" }} />
+            <Input placeholder="Enter office name" />
           </Form.Item>
-        </Form.Item>
-        <Form.Item name="phone" label="Phone">
-          <Input
-            addonBefore={<PhoneOutlined />}
-            placeholder="Enter office phone"
-          />
-        </Form.Item>
-        <Form.Item name="address" label="Address">
-          <Input.TextArea placeholder="Enter office address" />
-        </Form.Item>
-        <Form.Item name="isActive" label="Active" valuePropName="checked">
-          <Switch />
-        </Form.Item>
-      </Form>
-    </Drawer>
+          <Form.Item label="LatLng" style={{ marginBottom: 0 }}>
+            <Form.Item
+              name="latitude"
+              style={{ display: "inline-block", width: "calc(50% - 12px)" }}
+            >
+              <InputNumber placeholder="Latitude" style={{ width: "100%" }} />
+            </Form.Item>
+            <span
+              style={{
+                display: "inline-block",
+                width: "24px",
+                lineHeight: "32px",
+                textAlign: "center",
+              }}
+            >
+              -
+            </span>
+            <Form.Item
+              name="longitude"
+              style={{ display: "inline-block", width: "calc(50% - 12px)" }}
+            >
+              <InputNumber placeholder="Longitude" style={{ width: "100%" }} />
+            </Form.Item>
+          </Form.Item>
+          <Form.Item name="phone" label="Phone">
+            <Input
+              addonBefore={<PhoneOutlined />}
+              placeholder="Enter office phone"
+            />
+          </Form.Item>
+          <Form.Item name="address" label="Address">
+            <Input.TextArea placeholder="Enter office address" />
+          </Form.Item>
+          <Form.Item name="isActive" label="Active" valuePropName="checked">
+            <Switch />
+          </Form.Item>
+        </Form>
+      </Drawer>
+    )
   );
 };
 

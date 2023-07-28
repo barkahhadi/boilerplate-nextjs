@@ -8,7 +8,7 @@
 
 import React, { ReactElement } from "react";
 import { Button, Popconfirm, Space, Tooltip } from "antd";
-import type { ColumnsType } from "antd/es/table";
+import type { ColumnGroupType, ColumnsType } from "antd/es/table";
 import {
   EditOutlined,
   DeleteOutlined,
@@ -16,8 +16,12 @@ import {
 } from "@ant-design/icons";
 
 import { DataTableActionProps } from ".";
+import { ColumnType } from "antd/es/list";
 
-export const dataTableAction = (props: DataTableActionProps) => {
+export const dataTableAction = (
+  props: DataTableActionProps
+): unknown | null => {
+  // return null;
   const {
     title = "Action",
     key = "action",
@@ -32,10 +36,9 @@ export const dataTableAction = (props: DataTableActionProps) => {
   } = props;
 
   let actionWidth: number = 0;
-  if (showEdit) actionWidth += 40;
-  if (showDelete) actionWidth += 40;
+  if (showEdit || showDelete) actionWidth += 80;
   if (extra) {
-    const extraProps = extra({}).props.children;
+    const extraProps = extra({}).props?.children;
     if (extraProps) {
       if (Array.isArray(extraProps)) {
         actionWidth += 40 * extraProps.length;
@@ -45,6 +48,8 @@ export const dataTableAction = (props: DataTableActionProps) => {
     }
   }
   if (width !== "auto" && typeof width == "number") actionWidth = width;
+
+  if (actionWidth === 0) return null;
 
   const column: ColumnsType = [
     {

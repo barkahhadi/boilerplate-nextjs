@@ -14,12 +14,13 @@ import DataTable, {
 } from "@components/DataTable";
 import { ColumnsType } from "antd/es/table";
 import RoleForm from "./form";
-import { PageContainer } from "@ant-design/pro-components";
-import { Button, Select, message } from "antd";
+import { Button, message } from "antd";
 import { PlusCircleOutlined } from "@ant-design/icons";
 import { useHttp } from "@/hooks/useHttp";
 import { NoticeType } from "antd/es/message/interface";
-import { Application } from "./types";
+import { useCasl } from "@/hooks/useCasl";
+import { Ability } from "@/constants/ability";
+import PageContainer from "@/components/Layout/PageContainer";
 
 const RolePage: React.FC = (props) => {
   const [id, setId] = useState<string>(null);
@@ -29,6 +30,7 @@ const RolePage: React.FC = (props) => {
   const [messageApi, contextHolder] = message.useMessage();
   const { get } = useHttp();
   const [applicationData, setApplicationData] = useState<any>(null);
+  const { can } = useCasl("user-management:roles");
 
   useEffect(() => {
     (async () => {
@@ -58,8 +60,8 @@ const RolePage: React.FC = (props) => {
       sorter: true,
     },
     dataTableAction({
-      showEdit: true,
-      showDelete: true,
+      showEdit: can(Ability.UPDATE),
+      showDelete: can(Ability.DELETE),
       onDelete: async (record) => {
         await del(`/roles/${record.id}`);
         refreshData();
@@ -89,41 +91,45 @@ const RolePage: React.FC = (props) => {
   };
 
   return (
-    <>
-      {contextHolder}
-      <PageContainer
-        title="Role Management"
-        extra={
-          <Button
-            type="primary"
-            onClick={() => {
-              setId(null);
-              setOpen(true);
+    can(Ability.READ) && (
+      <>
+        {contextHolder}
+        <PageContainer
+          title="Role Management"
+          extra={
+            can(Ability.CREATE) && (
+              <Button
+                type="primary"
+                onClick={() => {
+                  setId(null);
+                  setOpen(true);
+                }}
+              >
+                <PlusCircleOutlined />
+                Add New Role
+              </Button>
+            )
+          }
+        >
+          <RoleForm
+            id={id}
+            open={open}
+            applicationData={applicationData}
+            onClose={() => setOpen(false)}
+            onFinish={() => {
+              refreshData();
+              if (id) {
+                showMessage("Record updated successfully!");
+              } else {
+                showMessage("Record added successfully!");
+              }
             }}
-          >
-            <PlusCircleOutlined />
-            New Role
-          </Button>
-        }
-      >
-        <RoleForm
-          id={id}
-          open={open}
-          applicationData={applicationData}
-          onClose={() => setOpen(false)}
-          onFinish={() => {
-            refreshData();
-            if (id) {
-              showMessage("Record updated successfully!");
-            } else {
-              showMessage("Record added successfully!");
-            }
-          }}
-          title={id ? "Edit Role" : "New Role"}
-        />
-        <DataTable {...dataTableConfig} ref={datatableRef} />
-      </PageContainer>
-    </>
+            title={id ? "Edit Role" : "New Role"}
+          />
+          <DataTable {...dataTableConfig} ref={datatableRef} />
+        </PageContainer>
+      </>
+    )
   );
 };
 

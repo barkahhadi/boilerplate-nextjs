@@ -14,6 +14,7 @@ export interface AuthState {
   isLoading: boolean;
   error: string;
   callBackUrl: string | null;
+  isLoadingPermission: boolean;
 }
 
 const initialState: AuthState = {
@@ -22,6 +23,7 @@ const initialState: AuthState = {
   isLoading: false,
   error: null,
   callBackUrl: null,
+  isLoadingPermission: false,
 };
 
 const authSlice: Slice = createSlice({
@@ -30,6 +32,9 @@ const authSlice: Slice = createSlice({
   reducers: {
     setLoading: (state: AuthState, action) => {
       state.isLoading = action.payload;
+    },
+    setLoadingPermission: (state: AuthState, action) => {
+      state.isLoadingPermission = action.payload;
     },
     setError: (state: AuthState, action) => {
       state.error = action.payload;

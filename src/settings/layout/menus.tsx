@@ -3,34 +3,42 @@ import {
   KeyOutlined,
   AppstoreAddOutlined,
 } from "@ant-design/icons";
-import { MenuDataItem } from "@ant-design/pro-components";
 
-const menus: MenuDataItem = [
+export interface MenuItem {
+  key: string;
+  path?: string;
+  name: string;
+  icon?: React.ReactNode;
+  children?: MenuItem[];
+  useCasl?: boolean;
+}
+
+const menus: MenuItem[] = [
   {
-    path: "/user-management",
+    key: "user-management",
     name: "User Management",
     icon: <UserOutlined />,
-    component: "@pages/user-management/users",
-    routes: [
+    children: [
       {
         path: "/user-management/users",
         name: "Users",
         icon: <UserOutlined />,
-        component: "@pages/user-management/users",
+        key: "user-management:users",
+        useCasl: true,
       },
       {
         path: "/user-management/roles",
         name: "Roles",
         icon: <KeyOutlined />,
-        component: "@pages/user-management/roles",
         key: "user-management:roles",
+        useCasl: true,
       },
       {
         path: "/user-management/offices",
         name: "Offices",
         icon: <AppstoreAddOutlined />,
-        component: "@pages/user-management/offices",
         key: "user-management:offices",
+        useCasl: true,
       },
     ],
   },

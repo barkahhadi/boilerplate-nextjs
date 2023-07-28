@@ -9,11 +9,13 @@ import { useAppDispatch } from "@store/index";
 import { appActions } from "@/store/slice/app";
 import UserForm from "./form";
 import UsersFormResetPassword from "./form-reset-password";
-import { PageContainer } from "@ant-design/pro-components";
 import { Button, message, Tooltip } from "antd";
 import { PlusCircleOutlined, KeyOutlined } from "@ant-design/icons";
 import { useHttp } from "@/hooks/useHttp";
 import { NoticeType } from "antd/es/message/interface";
+import { useCasl } from "@/hooks/useCasl";
+import { Ability } from "@/constants/ability";
+import PageContainer from "@/components/Layout/PageContainer";
 
 const UserPage: React.FC = (props) => {
   const [id, setId] = useState<string>(null);
@@ -24,9 +26,10 @@ const UserPage: React.FC = (props) => {
   const [messageApi, contextHolder] = message.useMessage();
   const [listRole, setListRole] = useState([]);
   const [listOffice, setListOffice] = useState([]);
+  const { can } = useCasl("user-management:users");
 
   const refreshData = () => {
-    datatableRef.current?.reload();
+    // datatableRef.current?.reload();
   };
 
   const columns: ColumnsType = [
@@ -61,8 +64,8 @@ const UserPage: React.FC = (props) => {
       render: (value) => (value ? "Yes" : "No"),
     },
     dataTableAction({
-      showEdit: true,
-      showDelete: true,
+      showEdit: can(Ability.UPDATE),
+      showDelete: can(Ability.DELETE),
       onDelete: async (record) => {
         await del(`/users/${record.id}`);
         refreshData();
@@ -72,24 +75,25 @@ const UserPage: React.FC = (props) => {
         setOpen(true);
         setId(record.id);
       },
-      extra: (record = null) => (
-        <Tooltip placement="topRight" title="Reset Password" arrow={true}>
-          <Button
-            type="primary"
-            ghost
-            shape="circle"
-            icon={<KeyOutlined />}
-            size="small"
-            style={{ color: "orange", borderColor: "orange" }}
-            onClick={() => {
-              if (record) {
-                setId(record.id);
-                setOpenFormReset(true);
-              }
-            }}
-          />
-        </Tooltip>
-      ),
+      extra: (record = null) =>
+        can(Ability.RESET_PASSWORD) && (
+          <Tooltip placement="topRight" title="Reset Password" arrow={true}>
+            <Button
+              type="primary"
+              ghost
+              shape="circle"
+              icon={<KeyOutlined />}
+              size="small"
+              style={{ color: "orange", borderColor: "orange" }}
+              onClick={() => {
+                if (record) {
+                  setId(record.id);
+                  setOpenFormReset(true);
+                }
+              }}
+            />
+          </Tooltip>
+        ),
     }),
   ];
 
@@ -123,51 +127,53 @@ const UserPage: React.FC = (props) => {
   }, []);
 
   return (
-    <>
-      {contextHolder}
-      <PageContainer
-        title="Users"
-        extra={
-          <Button
-            type="primary"
-            onClick={() => {
-              setId(null);
-              setOpen(true);
+    can(Ability.READ) && (
+      <>
+        {contextHolder}
+        <PageContainer
+          title="Users"
+          extra={
+            <Button
+              type="primary"
+              onClick={() => {
+                setId(null);
+                setOpen(true);
+              }}
+            >
+              <PlusCircleOutlined />
+              Add New User
+            </Button>
+          }
+        >
+          <UsersFormResetPassword
+            id={id}
+            title="Reset Password"
+            open={openFormReset}
+            onClose={() => setOpenFormReset(false)}
+            onFinish={() => {
+              showMessage("Password changed successfully!");
             }}
-          >
-            <PlusCircleOutlined />
-            Add New User
-          </Button>
-        }
-      >
-        <UsersFormResetPassword
-          id={id}
-          title="Reset Password"
-          open={openFormReset}
-          onClose={() => setOpenFormReset(false)}
-          onFinish={() => {
-            showMessage("Password changed successfully!");
-          }}
-        ></UsersFormResetPassword>
-        <UserForm
-          id={id}
-          open={open}
-          onClose={() => setOpen(false)}
-          onFinish={() => {
-            refreshData();
-            if (id) {
-              showMessage("Record updated successfully!");
-            } else {
-              showMessage("Record added successfully!");
-            }
-          }}
-          title={id ? "Edit User" : "Add New User"}
-          listRole={listRole}
-          listOffice={listOffice}
-        />
-        <DataTable {...dataTableConfig} ref={datatableRef} />
-      </PageContainer>
-    </>
+          ></UsersFormResetPassword>
+          <UserForm
+            id={id}
+            open={open}
+            onClose={() => setOpen(false)}
+            onFinish={() => {
+              refreshData();
+              if (id) {
+                showMessage("Record updated successfully!");
+              } else {
+                showMessage("Record added successfully!");
+              }
+            }}
+            title={id ? "Edit User" : "Add New User"}
+            listRole={listRole}
+            listOffice={listOffice}
+          />
+          <DataTable {...dataTableConfig} ref={datatableRef} />
+        </PageContainer>
+      </>
+    )
   );
 };
 

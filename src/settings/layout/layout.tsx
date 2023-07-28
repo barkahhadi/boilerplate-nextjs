@@ -1,16 +1,10 @@
-import { ProLayoutProps } from "@ant-design/pro-components";
-import menus from "./menus";
-
-const layoutSettings: ProLayoutProps = {
+const layoutSettings = {
   fixSiderbar: true,
   layout: "mix",
   siderMenuType: "sub",
   splitMenus: false,
   prefixCls: "bl-pro",
   siderWidth: 260,
-  route: {
-    routes: menus,
-  },
   token: {
     header: {
       colorBgMenuItemSelected: "rgba(0,0,0,0.04)",

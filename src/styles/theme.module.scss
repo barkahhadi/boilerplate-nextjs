@@ -1,0 +1,93 @@
+/*
+ * Author: Barkah Hadi
+ * Email: barkah.hadi@gmail.com
+ * Last Modified: Fri Jul 28 2023 3:44:46 PM
+ * File: theme.module.scss
+ * Description: Theme settings
+ */
+
+$primary-color: #3b27d2;
+$success-color: #63c930;
+$warning-color: #ffb012;
+$error-color: #f04144;
+$info-color: #42a4ff;
+$bg-container-color: #ffffff;
+$bg-base-color: #f0f2f5;
+$bg-elevated-color: #ffffff;
+$bg-header-color: #ffffff;
+$bg-footer-color: #657ed4;
+$font-size: 14;
+
+$sidebar-background: #3626a7;
+$sidebar-menu-selected-color: #657ed4;
+
+.ant-layout-sider-dark {
+  background: lighten($sidebar-background, 2%) !important;
+}
+
+.ant-menu-dark {
+  background: $sidebar-background !important;
+
+  .ant-menu-sub {
+    background-color: $sidebar-background !important;
+  }
+  .ant-menu-item:hover {
+    background-color: darken($sidebar-background, 2%) !important;
+  }
+
+  .ant-menu-item.ant-menu-item-selected {
+    background-color: $sidebar-menu-selected-color !important;
+  }
+}
+
+.ant-layout-sider-trigger {
+  top: 0px;
+  bottom: auto;
+  width: auto !important;
+  position: absolute !important;
+  right: -14px;
+  height: 65px !important;
+  background-color: transparent !important;
+  .btn-trigger:active,
+  .btn-trigger:hover,
+  .btn-trigger {
+    color: $sidebar-menu-selected-color;
+    border-color: $sidebar-menu-selected-color;
+    top: 8px;
+    width: 28px !important;
+    height: 28px !important;
+  }
+}
+.ant-layout-sider-zero-width-trigger {
+  padding: 0 !important;
+  top: 10px !important;
+  width: 40px !important;
+  background-color: transparent !important;
+  right: -50px !important;
+  .btn-trigger {
+    color: $sidebar-menu-selected-color;
+    width: 40px !important;
+    height: 40px;
+  }
+}
+.ant-layout-sider-below {
+  position: fixed !important;
+  z-index: 10;
+  height: 100vh;
+}
+.ant-menu-submenu-title:active {
+  background-color: darken($sidebar-background, 2%) !important;
+}
+:export {
+  primaryColor: $primary-color;
+  successColor: $success-color;
+  warningColor: $warning-color;
+  errorColor: $error-color;
+  infoColor: $info-color;
+  bgContainerColor: $bg-container-color;
+  bgBaseColor: $bg-base-color;
+  bgElevatedColor: $bg-elevated-color;
+  bgHeaderColor: $bg-header-color;
+  bgFooterColor: $bg-footer-color;
+  fontSize: $font-size;
+}

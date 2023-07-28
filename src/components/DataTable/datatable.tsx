@@ -55,6 +55,7 @@ export const DataTable = forwardRef<DataTableRef, DataTableProps>(
     const [perPage, setPerPage] = useState(itemPerpage);
     const [searchVal, setSearchVal] = useState("");
     const [total, setTotal] = useState(0);
+    // const [isClient, setIsClient] = useState(false);
     const [order, setOrder] = useState(
       (defaultOrder && defaultOrder.column) || null
     );
@@ -82,6 +83,9 @@ export const DataTable = forwardRef<DataTableRef, DataTableProps>(
       },
       {}
     );
+    // useEffect(() => {
+    //   setIsClient(true);
+    // }, []);
 
     const [dataSource, dispatchDataSource] = useReducer(
       (_: any, action: any) => {
@@ -97,6 +101,10 @@ export const DataTable = forwardRef<DataTableRef, DataTableProps>(
       },
       data
     );
+
+    if (columns.length > 0) {
+      columns = columns.filter((column) => column !== null);
+    }
 
     const buildQueryString = (params: DatatableParams) => {
       let queryArr: string[] = [];

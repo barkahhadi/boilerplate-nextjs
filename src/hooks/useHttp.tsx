@@ -8,64 +8,15 @@
 
 import axios, { AxiosError, AxiosInstance } from "axios";
 import { useState, useCallback } from "react";
-import { HttpRequestConfig } from "@/types/http";
 import AuthCookie from "@utils/cookies/auth";
-import { useAppSelector, useAppDispatch, AppDispatch } from "@/store";
-import { AuthState } from "@/store/slice/auth";
-import { refreshToken, logout } from "@/store/thunk/auth";
-import { ThunkDispatch } from "redux-thunk";
+import { useAppDispatch } from "@/store";
+import { refreshToken } from "@/store/thunk/auth";
 import { openNotification } from "@/store/thunk/app";
-import { RequestCallback } from ".";
+import { Http, RequestCallback, HttpRequestConfig } from "@/utils/http";
 
-const createAxiosInstance = (dispatch: AppDispatch): AxiosInstance => {
-  const instance = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL,
-  });
-
-  const token = AuthCookie.token;
-
-  instance.interceptors.request.use(
-    (config) => {
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-      config.headers.Accept = "application/json";
-      config.headers["Content-Type"] = "application/json";
-      return config;
-    },
-    (error) => {
-      return Promise.reject(error);
-    }
-  );
-
-  instance.interceptors.response.use(
-    (response) => {
-      return response;
-    },
-    async (error) => {
-      const originalRequest = error.config;
-
-      if (error.response.status === 401 && !originalRequest._retry) {
-        try {
-          await dispatch(refreshToken());
-
-          return axios({
-            ...originalRequest,
-            headers: {
-              ...originalRequest.headers,
-              Authorization: `Bearer ${AuthCookie.token}`,
-            },
-          });
-        } catch (err: unknown) {
-          console.log(err);
-        }
-      }
-      return Promise.reject(error);
-    }
-  );
-
-  return instance;
-};
+export interface HttpConfig {
+  onExpiredToken?: (originalRequest: any) => Promise<AxiosInstance>;
+}
 
 const useHttp = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -78,12 +29,18 @@ const useHttp = () => {
       onSuccess?: Function,
       onError?: Function
     ) => {
-      const axiosInstance = createAxiosInstance(dispatch);
-      setIsLoading(true);
-      setError(null);
+      const http = new Http({
+        onExpiredToken: async (originalRequest) => {
+          try {
+            await dispatch(refreshToken());
+          } catch (err: unknown) {
+            console.log(err);
+          }
+        },
+      });
 
       try {
-        const axiosConfig: any = {
+        const axiosConfig: HttpRequestConfig = {
           method: config.method,
           url: config.url,
         };
@@ -91,7 +48,10 @@ const useHttp = () => {
           axiosConfig.data = config.data;
         }
 
-        const response = await axiosInstance(axiosConfig);
+        setIsLoading(true);
+        setError(null);
+        const response = await http.request(axiosConfig);
+
         setIsLoading(false);
         if (onSuccess) {
           onSuccess(response);
