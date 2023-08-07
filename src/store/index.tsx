@@ -35,5 +35,5 @@ export const useAppDispatch = () => useDispatch<AppDispatch>();
 export const useAppSelector: TypedUseSelectorHook<AppState> = useSelector;
 
 export default createWrapper<AppStore>(makeStore, {
-  debug: true,
+  debug: process.env.NODE_ENV === "development",
 });

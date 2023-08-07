@@ -82,9 +82,6 @@ export const DataTable = forwardRef<DataTableRef, DataTableProps>(
       },
       {}
     );
-    // useEffect(() => {
-    //   setIsClient(true);
-    // }, []);
 
     const [dataSource, dispatchDataSource] = useReducer(
       (_: any, action: any) => {

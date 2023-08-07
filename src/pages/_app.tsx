@@ -49,7 +49,7 @@ const App = ({ Component, pageProps }: Props) => {
   useAsync(async () => {
     if (AuthCookie.isAuthenticated) {
       try {
-        if (isInitialRender) dispatch(getPermissions());
+        if (isInitialRender) await dispatch(getPermissions());
         await dispatch(me());
 
         isInitialRender = false;
@@ -90,11 +90,8 @@ const App = ({ Component, pageProps }: Props) => {
 
   // If your page has a layout defined, use it. Otherwise, use the default layout.
   let getLayout =
-    Component.getLayout || ((page: any) => <MainLayout>{page}</MainLayout>);
-
-  // if (isLoadingPermission) {
-  //   return <Loading loading={true} />;
-  // }
+    Component.getLayout ||
+    ((page: any) => (isAuthenticated ? <MainLayout>{page}</MainLayout> : null));
 
   return getLayout(
     <div>

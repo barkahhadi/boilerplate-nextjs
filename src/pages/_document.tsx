@@ -20,6 +20,7 @@ export default function Document() {
         <meta name="description" content={METADATA.APP_DESCRIPTION} />
         <meta content={METADATA.KEYWORDS} name="keywords" />
         <link rel="shortcut icon" href="/favicon.ico" />
+        <title>{METADATA.APP_NAME}</title>
       </Head>
       <body>
         <div id="modal-root"></div>
